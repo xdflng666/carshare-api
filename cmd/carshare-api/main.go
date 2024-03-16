@@ -3,6 +3,7 @@ package main
 import (
 	"carshare-api/internal/config"
 	"carshare-api/internal/http-server/handlers/getCarLocations"
+	"carshare-api/internal/http-server/handlers/getCars"
 	"carshare-api/internal/http-server/handlers/postCarLocation"
 	"carshare-api/internal/storage/pgsql"
 	"github.com/go-chi/chi/v5"
@@ -39,6 +40,7 @@ func main() {
 
 	// Main routes
 	router.Get("/locations", getCarLocations.New(storage))
+	router.Get("/cars", getCars.New(storage))
 	router.Post("/postLocation", postCarLocation.New(storage))
 
 	log.Println("Starting server at", cfg.Address)

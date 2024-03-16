@@ -2,6 +2,12 @@ package models
 
 import "time"
 
+type Car struct {
+	Name     string `json:"carName"`
+	UUID     string `json:"uuid"`
+	IsActive bool   `json:"isActive"`
+}
+
 type CarLocation struct {
 	Name        string    `json:"carName"`
 	UUID        string    `json:"uuid"`

@@ -36,6 +36,33 @@ func (s *Storage) PostCarLocation(lat, lon float64, carUUID string) error {
 	return nil
 }
 
+func (s *Storage) GetCars() ([]models.Car, error) {
+	const op = "storage.postgres.GetCars"
+
+	query := `SELECT name, uuid, is_active FROM car`
+
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: query: %w", op, err)
+	}
+
+	var cars []models.Car
+	for rows.Next() {
+		car := models.Car{}
+		err = rows.Scan(&car.Name, &car.UUID, &car.IsActive)
+		if err != nil {
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+		cars = append(cars, car)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s: rows: %w", op, err)
+	}
+
+	return cars, nil
+}
+
 func (s *Storage) GetCarLocations() ([]models.CarLocation, error) {
 	const op = "storage.postgres.GetCarLocations"
 
