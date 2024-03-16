@@ -43,7 +43,7 @@ func (s *Storage) GetCarLocations() ([]models.CarLocation, error) {
 	var locations []models.CarLocation
 	for rows.Next() {
 		var location models.CarLocation
-		err := rows.Scan(&location.Name, &location.UUID, &location.IsActive, &location.Lat, &location.Lon, &location.CreatedAt)
+		err := rows.Scan(&location.Name, &location.UUID, &location.IsActive, &location.Location.Lat, &location.Location.Lon, &location.LastUpdated)
 		if err != nil {
 			return nil, fmt.Errorf("%s: scan: %w", op, err)
 		}
