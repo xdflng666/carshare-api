@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	PostgresDSN string ``
+	PostgresDSN string `yaml:"postgres_dsn"`
 	HTTPServer  `yaml:"http_server"`
 }
 
