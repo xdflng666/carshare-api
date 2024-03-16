@@ -2,6 +2,7 @@ package getCarLocations
 
 import (
 	"carshare-api/internal/models"
+	resp "carshare-api/lib/api/response"
 	"github.com/go-chi/render"
 	"log"
 	"net/http"
@@ -13,24 +14,16 @@ type CarLocationsGetter interface {
 
 func New(locationsGetter CarLocationsGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		const op = "handlers.getCarLocations.New"
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		res, err := locationsGetter.GetCarLocations()
 		if err != nil {
-			log.Fatal("Поешь говна")
+			log.Printf("%s:%s", op, err)
+			w.WriteHeader(http.StatusInternalServerError)
+			render.JSON(w, r, resp.Error("Internal server error"))
 		}
 
 		render.JSON(w, r, res)
-
-		//render.JSON(w, r, models.CarLocation{
-		//	Name:      "Hi",
-		//	UUID:      "1234",
-		//	IsActive:  false,
-		//	Lat:       1,
-		//	Lon:       2,
-		//	CreatedAt: time.Now(),
-		//})
 	}
 }

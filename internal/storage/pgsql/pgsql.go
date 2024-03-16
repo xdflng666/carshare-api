@@ -22,6 +22,20 @@ func New(dsn string) (*Storage, error) {
 	return &Storage{db: db}, nil
 }
 
+func (s *Storage) PostCarLocation(lat, lon float64, carUUID string) error {
+	const op = "storage.pgsql.PostCarLocation"
+
+	rows, err := s.db.Query(`INSERT INTO location (lat, lon, car_uuid) VALUES ($1, $2, $3)`, lat, lon, carUUID)
+
+	if err != nil {
+		return fmt.Errorf("%s:%w", op, err)
+	}
+
+	fmt.Println(rows)
+
+	return nil
+}
+
 func (s *Storage) GetCarLocations() ([]models.CarLocation, error) {
 	const op = "storage.postgres.GetCarLocations"
 
@@ -43,7 +57,14 @@ func (s *Storage) GetCarLocations() ([]models.CarLocation, error) {
 	var locations []models.CarLocation
 	for rows.Next() {
 		var location models.CarLocation
-		err := rows.Scan(&location.Name, &location.UUID, &location.IsActive, &location.Location.Lat, &location.Location.Lon, &location.LastUpdated)
+		err := rows.Scan(
+			&location.Name,
+			&location.UUID,
+			&location.IsActive,
+			&location.Location.Lat,
+			&location.Location.Lon,
+			&location.LastUpdated,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("%s: scan: %w", op, err)
 		}
