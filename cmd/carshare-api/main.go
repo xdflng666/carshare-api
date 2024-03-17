@@ -33,15 +33,24 @@ func main() {
 	router.Use(middleware.URLFormat)
 	router.Use(middleware.Logger)
 
-	// Dummy route
-	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("API is ready for battle ;)"))
+	// Protected routes
+	router.Route("/api", func(r chi.Router) {
+		// Define the basic auth middleware
+		r.Use(middleware.BasicAuth("carshare-api", storage.GetAuthCredentials()))
+		r.Get("/", func(writer http.ResponseWriter, request *http.Request) {
+			writer.Write([]byte("Successfully got response from protected route root"))
+		})
+
+		// Main routes
+		r.Get("/locations", getCarLocations.New(storage))
+		r.Get("/cars", getCars.New(storage))
+		r.Post("/postLocation", postCarLocation.New(storage))
 	})
 
-	// Main routes
-	router.Get("/locations", getCarLocations.New(storage))
-	router.Get("/cars", getCars.New(storage))
-	router.Post("/postLocation", postCarLocation.New(storage))
+	// Ping alive
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("I'm still alive"))
+	})
 
 	log.Println("Starting server at", cfg.Address)
 

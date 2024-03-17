@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"log"
 )
 
 type Storage struct {
@@ -103,4 +104,33 @@ func (s *Storage) GetCarLocations() ([]models.CarLocation, error) {
 	}
 
 	return locations, nil
+}
+
+func (s *Storage) GetAuthCredentials() map[string]string {
+	const op = "storage.postgres.GetAuthCredentials"
+
+	query := "SELECT username, password FROM users"
+
+	rows, err := s.db.Query(query)
+
+	if err != nil {
+		log.Printf("%s:%s\n", op, err)
+		log.Fatal("Couldn't load auth credentials")
+	}
+
+	credMap := make(map[string]string)
+
+	for rows.Next() {
+		var username, password string
+		err = rows.Scan(&username, &password)
+		if err != nil {
+			log.Fatal("Error while reading auth credentials")
+		}
+		credMap[username] = password
+	}
+	if rows.Err() != nil {
+		log.Fatal("Error while reading auth credentials")
+	}
+
+	return credMap
 }
