@@ -4,6 +4,7 @@ import (
 	"carshare-api/internal/config"
 	"carshare-api/internal/http-server/handlers/getCarLocations"
 	"carshare-api/internal/http-server/handlers/getCars"
+	"carshare-api/internal/http-server/handlers/getStory"
 	"carshare-api/internal/http-server/handlers/postCarLocation"
 	"carshare-api/internal/storage/pgsql"
 	"github.com/go-chi/chi/v5"
@@ -32,9 +33,15 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middleware.URLFormat)
 	router.Use(middleware.Logger)
+	// CORS
+	router.Use(middleware.SetHeader("Access-Control-Allow-Origin", "http://localhost:3000"))
+	router.Use(middleware.SetHeader("Access-Control-Allow-Credentials", "true"))
+	router.Use(middleware.SetHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"))
+	router.Use(middleware.SetHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"))
 
 	// Protected routes
 	router.Route("/api", func(r chi.Router) {
+
 		// Define the basic auth middleware
 		r.Use(middleware.BasicAuth("carshare-api", storage.GetAuthCredentials()))
 		r.Get("/", func(writer http.ResponseWriter, request *http.Request) {
@@ -44,6 +51,7 @@ func main() {
 		// Main routes
 		r.Get("/locations", getCarLocations.New(storage))
 		r.Get("/cars", getCars.New(storage))
+		r.Get("/story/{car_uuid}", getStory.New(storage))
 		r.Post("/postLocation", postCarLocation.New(storage))
 	})
 

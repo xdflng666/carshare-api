@@ -19,8 +19,7 @@ type CarLocation struct {
 	} `json:"location"`
 }
 
-//"carName": item[0],
-//"uuid": item[1],
-//"isActive": item[2],
-//"location": {"lat": item[3], "lon": item[4]},
-//"last_updated": item[5].isoformat()
+type Point struct {
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
+}

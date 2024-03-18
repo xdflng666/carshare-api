@@ -134,3 +134,27 @@ func (s *Storage) GetAuthCredentials() map[string]string {
 
 	return credMap
 }
+
+func (s *Storage) GetStory(carUUID string) ([]models.Point, error) {
+	const op = "storage.postgres.GetStoryOf"
+
+	query := "SELECT lat, lon FROM location WHERE car_uuid = $1 LIMIT 5"
+
+	rows, err := s.db.Query(query, carUUID)
+
+	if err != nil {
+		return nil, fmt.Errorf("%s: query: %w", op, err)
+	}
+
+	var coordinates []models.Point
+	for rows.Next() {
+		var p models.Point
+		err := rows.Scan(&p.Lat, &p.Lon)
+		if err != nil {
+			return nil, fmt.Errorf("%s: scan: %w", op, err)
+		}
+		coordinates = append(coordinates, p)
+	}
+
+	return coordinates, nil
+}
