@@ -21,8 +21,7 @@ type CarLocationPoster interface {
 
 func New(poster CarLocationPoster) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		const op = "handlers.getCarLocations.New"
+		const op = "handlers.postCarLocation.New"
 
 		var req Request
 
@@ -31,16 +30,13 @@ func New(poster CarLocationPoster) http.HandlerFunc {
 			// Такую ошибку встретим, если получили запрос с пустым телом.
 			// Обработаем её отдельно
 			log.Println("request body is empty")
-
 			render.JSON(w, r, resp.Error("empty request"))
-
 			return
 		}
+
 		if err != nil {
 			log.Println("failed to decode request body", err)
-
 			render.JSON(w, r, resp.Error("failed to decode request"))
-
 			return
 		}
 
@@ -49,14 +45,11 @@ func New(poster CarLocationPoster) http.HandlerFunc {
 		err = poster.PostCarLocation(req.Lat, req.Lon, req.CarUUID)
 		if err != nil {
 			log.Println(op, err)
-
 			w.WriteHeader(http.StatusInternalServerError)
 			render.JSON(w, r, resp.Error("Internal server error"))
-
 			return
 		}
 
 		render.JSON(w, r, resp.OK())
-
 	}
 }

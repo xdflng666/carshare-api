@@ -26,13 +26,11 @@ func New(dsn string) (*Storage, error) {
 func (s *Storage) PostCarLocation(lat, lon float64, carUUID string) error {
 	const op = "storage.pgsql.PostCarLocation"
 
-	rows, err := s.db.Query(`INSERT INTO location (lat, lon, car_uuid) VALUES ($1, $2, $3)`, lat, lon, carUUID)
+	_, err := s.db.Exec(`INSERT INTO location (lat, lon, car_uuid) VALUES ($1, $2, $3)`, lat, lon, carUUID)
 
 	if err != nil {
 		return fmt.Errorf("%s:%w", op, err)
 	}
-
-	fmt.Println(rows)
 
 	return nil
 }
