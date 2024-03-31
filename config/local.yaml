@@ -1,4 +1,4 @@
-postgres_dsn: "host=localhost user=postgres password=postgres dbname=car-share-service port=5432"
+postgres_dsn: "host=localhost user=postgres password=postgres dbname=carsh-db port=5432"
 http_server:
   address: "0.0.0.0:8000"
   timeout: 4s
