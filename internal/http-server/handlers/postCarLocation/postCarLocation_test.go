@@ -107,8 +107,6 @@ func TestPostCarLocation(t *testing.T) {
 
 			body := rr.Body.String()
 
-			// fmt.Println(body)
-
 			var resp response.Response
 
 			require.NoError(t, json.Unmarshal([]byte(body), &resp))
@@ -117,5 +115,57 @@ func TestPostCarLocation(t *testing.T) {
 
 		})
 	}
+
+	t.Run("Empty body request", func(t *testing.T) {
+
+		input := ""
+		respError := "empty request"
+
+		carLocationPosterMock := mocks.NewCarLocationPoster(t) // Storage mock
+		handler := postCarLocation.New(carLocationPosterMock) // Created handler with mocked storage
+
+		req, err := http.NewRequest(http.MethodPost, "/api/postLocation", bytes.NewReader([]byte(input)))
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+		handler.ServeHTTP(rr, req)
+
+		require.Equal(t, rr.Code, http.StatusOK)
+
+		body := rr.Body.String()
+
+		var resp response.Response
+
+		require.NoError(t, json.Unmarshal([]byte(body), &resp))
+
+		require.Equal(t, respError, resp.Error)
+
+	})
+
+	t.Run("Invalid body", func(t *testing.T) {
+
+		input := "invalid body"
+		respError := "failed to decode request"
+
+		carLocationPosterMock := mocks.NewCarLocationPoster(t) // Storage mock
+		handler := postCarLocation.New(carLocationPosterMock) // Created handler with mocked storage
+
+		req, err := http.NewRequest(http.MethodPost, "/api/postLocation", bytes.NewReader([]byte(input)))
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+		handler.ServeHTTP(rr, req)
+
+		require.Equal(t, rr.Code, http.StatusOK)
+
+		body := rr.Body.String()
+
+		var resp response.Response
+
+		require.NoError(t, json.Unmarshal([]byte(body), &resp))
+
+		require.Equal(t, respError, resp.Error)
+
+	})
 
 }
