@@ -3,18 +3,21 @@ package postCarLocation
 import (
 	resp "carshare-api/lib/api/response"
 	"errors"
-	"github.com/go-chi/render"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/render"
+	"github.com/go-playground/validator/v10"
 )
 
 type Request struct {
-	Lat     float64 `json:"lat"`
-	Lon     float64 `json:"lon"`
-	CarUUID string  `json:"car_uuid"`
+	Lat     float64 `json:"lat" validate:"required,number,gte=-90,lte=90"`
+	Lon     float64 `json:"lon" validate:"required,number,gte=-180,lte=180"`
+	CarUUID string  `json:"car_uuid" validate:"required,uuid"`
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name=CarLocationPoster
 type CarLocationPoster interface {
 	PostCarLocation(lat, lon float64, carUUID string) error
 }
@@ -40,7 +43,11 @@ func New(poster CarLocationPoster) http.HandlerFunc {
 			return
 		}
 
-		log.Println(op, "request body decoded", req)
+		if err := validator.New().Struct(req); err != nil {
+			validateErr := err.(validator.ValidationErrors)
+			render.JSON(w, r, resp.ValidationError(validateErr))
+			return
+		}
 
 		err = poster.PostCarLocation(req.Lat, req.Lon, req.CarUUID)
 		if err != nil {

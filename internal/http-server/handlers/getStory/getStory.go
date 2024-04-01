@@ -9,6 +9,7 @@ import (
 	"net/http"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name=StoryGetter
 type StoryGetter interface {
 	GetStory(carUUID string) ([]models.Point, error)
 }
